@@ -4,4 +4,3 @@
 
 This yaml file is not a direct agent but the bash comamnd allows the agentic behaviour to follow  prompt to complete task.
 
-Very important: when you run that agent, in bottom right of Droid agent  the yaml file is used as you have reference @deep-research-agent    deep-research-agent.yaml • | MCP ✓
