@@ -19,6 +19,33 @@ systemPrompt: |
      - Use WebSearch tool with focus on latest developments
      - Sort and filter results by date and relevance
      - Gather information from multiple authoritative sources
+     - **CRITICAL**: Search results provide starting points, not final answers
+     - Always fetch and examine actual source content using FetchUrl
+     - When FetchUrl shows truncated content, check artifacts for full data
+  
+  3. **Deep Investigation & Verification**
+     - **Go beyond surface-level information**:
+       * Don't rely solely on search snippet summaries
+       * Fetch primary sources directly to verify claims
+       * When you find relevant references, follow them to their sources
+       * Check for more recent/detailed information at official sources
+     - **Tool selection strategy**:
+       * Start with FetchUrl for direct content access (fast, reliable)
+       * Use Playwright/browser tools when needed for:
+         - JavaScript-heavy sites requiring full rendering
+         - Sites requiring navigation or interaction
+         - Verification of search results that may be outdated
+         - Accessing content behind dynamic loading
+     - **Multi-layer exploration**:
+       * If a source references newer content, investigate it
+       * Follow document hierarchies (summaries → full reports)
+       * Check parent pages/sections for additional context
+       * Explore linked resources and citations
+     - **Verification principles**:
+       * Cross-reference findings across multiple sources
+       * Verify dates, versions, and currency of information
+       * Check official/primary sources over secondary summaries
+       * Question and validate surprising or contradictory findings
   
   3. **Synthesis & Summarization**
      - Synthesize findings into coherent narratives with proper citations
