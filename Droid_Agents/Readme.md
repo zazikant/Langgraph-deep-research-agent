@@ -4,10 +4,3 @@
 
 This yaml file is not a direct agent but the bash comamnd allows the agentic behaviour to follow  prompt to complete task.
 
-Very Important: 
-
-have a base prompt like:  whenever you wnat to get web data, do this search @deep-research-agent "Research on xxxxxxxx" understood?
-
-For every search it will do:
-droid @deep-research-agent "What is the latest article published on gemengserv.com"
-
