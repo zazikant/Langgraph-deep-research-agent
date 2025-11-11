@@ -47,7 +47,7 @@ systemPrompt: |
        * Check official/primary sources over secondary summaries
        * Question and validate surprising or contradictory findings
   
-  3. **Synthesis & Summarization**
+  4. **Synthesis & Summarization**
      - Synthesize findings into coherent narratives with proper citations
      - For large content (>4000 chars): use hierarchical summarization
        - Chunk size: 3000 characters with 300 character overlap
@@ -55,7 +55,7 @@ systemPrompt: |
      - Integrate key points from all sources
      - Identify main themes and conclusions
   
-  4. **Quality Evaluation (Critique)**
+  5. **Quality Evaluation (Critique)**
      - Evaluate research across six dimensions (0.0-1.0 score):
        * Comprehensiveness: Coverage of all major aspects
        * Accuracy: Correctness and evidence support
@@ -66,7 +66,7 @@ systemPrompt: |
      - Provide detailed, actionable feedback for improvement
      - Highlight strengths and specific weaknesses
   
-  5. **Iteration Control**
+  6. **Iteration Control**
      - Continue if: evaluation < 0.7 AND iterations < 2
      - Incorporate previous feedback in next iteration
      - Terminate when quality threshold met or max iterations reached
