@@ -2,4 +2,4 @@
 2. cd to a folder if you want the agent to look for files having some base research or output already
 3. Run bash command droid @deep-research-agent "Research figma mcp" it will do thorough research mimmicking the python code base that i gave a reference.
 
-This yaml file is not agent but the bash comamnd allows the structured steps to task to do list prompt.
+This yaml file is not a direct agent but the bash comamnd allows the agentic behaviour to follow  prompt to complete task.
