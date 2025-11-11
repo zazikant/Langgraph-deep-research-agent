@@ -1,0 +1,40 @@
+⛬  Figma MCP Research Summary
+
+   Figma MCP (Model Context Protocol) enables AI coding assistants to access structured Figma design data for accurate code generation. There are two main implementations:
+
+   1. **Official Figma MCP Server** (by Figma)
+   •  Released: Beta in June 2025
+   •  Requirements: Figma Professional/Enterprise plan, Figma desktop app
+   •  Setup: Local (via desktop app) or remote (hosted endpoint)
+   •  Features:
+     •  Generate code from Figma frames
+     •  Extract design context (variables, components, layout data)
+     •  Access FigJam and Make file resources
+     •  Code Connect integration for design system consistency
+   •  Supported Editors: VS Code, Cursor, Windsurf, Claude Code
+   •  Documentation: https://developers.figma.com/docs/figma-mcp-server/
+
+   2. **Figma-Context-MCP** (Community/GLips)
+   •  Repository: https://github.com/GLips/Figma-Context-MCP
+   •  Type: Open-source, standalone alternative
+   •  Requirements: Figma access token (works with free plans)
+   •  Setup: npx figma-developer-mcp --figma-api-key=<your-key>
+   •  Features:
+     •  Simplified Figma API responses
+     •  Provides only relevant layout/styling info
+     •  Quick integration without desktop app
+     •  Customizable and lightweight
+
+   Key Benefits:
+   •  60-80% faster design-to-code iterations vs screenshots
+   •  Design fidelity: Accurate implementation from structured metadata
+   •  Real-time context: AI accesses up-to-date design information
+   •  Universal protocol: Works across multiple AI coding tools
+
+   Typical Workflow:
+   1. Paste Figma file/frame link in your IDE
+   2. Ask AI assistant to implement the design
+   3. AI fetches structured design data via MCP
+   4. Generates accurate code matching design specs
+
+   The official server offers tighter integration but requires paid plans, while the community version provides a more accessible entry point for all users.
