@@ -13,3 +13,4 @@ Then,
 
 1. ask for show all urls you used to get this summary.
 2. Then ask to use FetchUrl tool to make summary of all those urls.
+3. use claude code to pass learning.md and reiterate to droid chat for final learning.md
