@@ -8,3 +8,8 @@ This yaml file is not a direct agent but the bash comamnd allows the agentic beh
 Very important: whenever you wnat to get web data, do this search @deep-research-agent "Research on xxxxxxxx" understood?
 
 so every prompt you write with "research" keyword. rsearch on what is the latest article on gemengserv.com it will run the yaml instructions.
+
+Then, 
+
+1. ask for show all urls you used to get this summary.
+2. Then ask to use webfetchurl tool to make summary of all those urls.
