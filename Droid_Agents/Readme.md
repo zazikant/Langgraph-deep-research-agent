@@ -12,4 +12,4 @@ so every prompt you write with "research" keyword. rsearch on what is the latest
 Then, 
 
 1. ask for show all urls you used to get this summary.
-2. Then ask to use webfetchurl tool to make summary of all those urls.
+2. Then ask to use FetchUrl tool to make summary of all those urls.
