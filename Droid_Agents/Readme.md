@@ -1,7 +1,7 @@
 1. Place the "Deep Research Agent.yaml" file in path like so: /home/zazikant/.factory/droids/deep-research-agent.yaml
 
 either directly do 
-## **droid @.factory/droids/Deep Research Agent.yaml "Research on xxx "**
+## **droid @.factory/droids/Deep Research Agent.yaml "Research on xxx "** (main concept is, research keyword triggers deep research by agent)
 
 or else go to droid and then query that "research" on xxx and then you can nudge agent to force to use agent for research. 
 
