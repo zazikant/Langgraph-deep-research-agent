@@ -30,6 +30,8 @@ system prompt: for any web search , you will never do direct web search. you wil
 
 ## prompt: **You will always use agent for web search or research related task. dont by pass agent for web search.**
 
+## result prompt after agent is finished research:  what does this code do? explain like mermaid chart or easy way
+
 create below agent:
 
 ---
