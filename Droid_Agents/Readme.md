@@ -1,34 +1,10 @@
 1. Place the "Deep Research Agent.yaml" file in path like so: /home/zazikant/.factory/droids/deep-research-agent.yaml
-2. cd to a folder if you want the agent to look for files having some base research or output already
-3. Run command **@.factory/droids/Deep Research Agent.yaml "Research on trending ai models from china "** it will do thorough research mimmicking the python code base that i gave a reference.
 
-    PLAN   Updated: 5 total (4 pending, 1 in progress, 0 completed)
+either directly do **droid @.factory/droids/Deep Research Agent.yaml "Research on xxx "**
 
- ○ Research trending AI models from China using web search
- ○ Fetch and analyze primary sources from Chinese AI companies
- ○ Verify claims and cross-reference information across multiple sources
- ○ Synthesize findings into a comprehensive report with citations
- ○ Evaluate research quality and iterate if needed
+or else go to droid and then query that "research" on xxx and then you can nudge agent to force to use agent for research. 
 
-This yaml file is not a direct agent but the bash comamnd allows the agentic behaviour to follow  prompt to complete task.
-
-
-## Prompt: whenever you want to get web data, do this search **@.factory/droids/Deep Research Agent.yaml "Research on xxx "** understood?
-
-so every prompt you write with "research" keyword. rsearch on what is the latest article on gemengserv.com it will run the yaml instructions.
-
-Then, 
-
-1. ask for show all urls you used to get this summary.
-2. Then ask to use FetchUrl tool to make summary of all those urls.
-3. use claude code to pass learning.md and reiterate to droid chat for final learning.md
-
-
-system prompt: for any web search , you will never do direct web search. you will always refer to @.factory/droids/Deep Research Agent.yaml  and then make a plan and do a research. use firecrawl mcp additionally if required. understood?
-
-=================================== method 2 (using agent to use firecrawl mcp and use the yaml instructions) ======================
-
-## prompt: **You will always use agent for web search or research related task. dont by pass agent for web search.**
+The research files are stored in /research folder. The agent is by far best doing research and its interlinked to follow the yaml file for instructions.
 
 ## result prompt after agent is finished research:  what does this code do? explain like mermaid chart or easy way
 
