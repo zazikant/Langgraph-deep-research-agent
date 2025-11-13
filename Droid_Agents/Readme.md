@@ -13,7 +13,7 @@
 This yaml file is not a direct agent but the bash comamnd allows the agentic behaviour to follow  prompt to complete task.
 
 
-Very important: whenever you wnat to get web data, do this search **@.factory/droids/Deep Research Agent.yaml "Research on xxx "** understood?
+##Prompt: whenever you want to get web data, do this search **@.factory/droids/Deep Research Agent.yaml "Research on xxx "** understood?
 
 so every prompt you write with "research" keyword. rsearch on what is the latest article on gemengserv.com it will run the yaml instructions.
 
