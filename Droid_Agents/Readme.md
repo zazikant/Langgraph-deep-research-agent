@@ -1,12 +1,10 @@
 1. Place the "Deep Research Agent.yaml" file in path like so: /home/zazikant/.factory/droids/deep-research-agent.yaml
 
-either directly do **droid @.factory/droids/Deep Research Agent.yaml "Research on xxx "**
+either directly do ## **droid @.factory/droids/Deep Research Agent.yaml "Research on xxx "**
 
 or else go to droid and then query that "research" on xxx and then you can nudge agent to force to use agent for research. 
 
 The research files are stored in /research folder. The agent is by far best doing research and its interlinked to follow the yaml file for instructions.
-
-## result prompt after agent is finished research:  what does this code do? explain like mermaid chart or easy way
 
 ## create below agent:
 
