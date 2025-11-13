@@ -1,4 +1,4 @@
-1. Place the "Deep Research Agent.yaml" file in path like so: /home/zazikant/.factory/droids/deep-research-agent.yaml
+Place the "Deep Research Agent.yaml" file in path like so: /home/zazikant/.factory/droids/deep-research-agent.yaml
 
 either directly do 
 ## **droid @.factory/droids/Deep Research Agent.yaml "Research on xxx "** (main concept is, research keyword triggers deep research by agent)
