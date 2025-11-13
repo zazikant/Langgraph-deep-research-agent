@@ -7,6 +7,8 @@ or else go to droid and then query that "research" on xxx and then you can nudge
 
 The research files are stored in /research folder. The agent is by far best doing research and its interlinked to follow the yaml file for instructions.
 
+(One hack- In rare case, ask use firecrawl mcp to extract more info by passing sources.md just so that if issue persists, this can help)
+
 ## create below agent:
 
 
