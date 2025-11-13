@@ -1,6 +1,6 @@
 1. Place the "Deep Research Agent.yaml" file in path like so: /home/zazikant/.factory/droids/deep-research-agent.yaml
 2. cd to a folder if you want the agent to look for files having some base research or output already
-3. Run bash command droid @deep-research-agent "Research figma mcp" it will do thorough research mimmicking the python code base that i gave a reference.
+3. Run command @.factory/droids/Deep Research Agent.yaml "Research on trending ai models from china " it will do thorough research mimmicking the python code base that i gave a reference.
 
 This yaml file is not a direct agent but the bash comamnd allows the agentic behaviour to follow  prompt to complete task.
 
