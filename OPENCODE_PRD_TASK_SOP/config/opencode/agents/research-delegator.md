@@ -79,7 +79,7 @@ This phase consumes significant tokens but occurs only in your isolated thread:
 - Prepare code examples if applicable
 
 ### 3. Generate Research Files
-Create standardized research documentation in `~/.opencode/research/`:
+Create standardized research documentation in `.agent/research/`:
 
 **File 1: {topic}-summary.md**
 ```markdown

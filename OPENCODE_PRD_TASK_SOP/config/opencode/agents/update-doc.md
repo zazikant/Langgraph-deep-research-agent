@@ -63,7 +63,7 @@ Next: Add your first document or run `/update-doc reindex`
 1. Scan `.agent/task/*.md` → extract titles
 2. Scan `.agent/system/*.md` → extract titles  
 3. Scan `.agent/sops/*.md` → extract titles
-4. Scan `.agent/research/*-summary.md` → extract titles
+4. Scan `.agent/research/*-summary.md`, `.agent/research/*-sources.md`, `.agent/research/*-examples.md` → extract titles
 5. Regenerate readme.md sections:
    - Keep header (# Project Documentation Hub)
    - Keep intro paragraph
