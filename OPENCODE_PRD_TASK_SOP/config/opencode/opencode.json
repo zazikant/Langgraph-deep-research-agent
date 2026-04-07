@@ -54,7 +54,7 @@
     },
     "chrome-devtools": {
       "type": "local",
-      "command": ["npx", "-y", "chrome-devtools-mcp@latest", "--channel=canary", "--headless=true", "--isolated=true"],
+      "command": ["npx", "-y", "chrome-devtools-mcp@latest", "--channel=stable", "--headless=true", "--isolated=true"],
       "enabled": true
     },
     "figma": {
