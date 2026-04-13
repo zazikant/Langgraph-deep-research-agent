@@ -1,6 +1,12 @@
 
 Very important - 
 
+update keys in code for ai agent.py
+
+NVIDIA_API_KEY      = ""
+SERPER_API_KEY      = ""
+BROWSERLESS_API_KEY = ""
+
 1. The config for opencode in windows is at C:\Users\%USERPROFILE%\.config\opencode. in terminal, ask opencode to read all files in it.
 2. To use this in windows, update the "seed-researcher" subagent to have path changed from "/home/zazikant/code for AI agent.py" to "C:\Users\Asus\.config\code for AI agent.py"   
 
