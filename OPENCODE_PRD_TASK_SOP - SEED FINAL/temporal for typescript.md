@@ -1,11 +1,16 @@
-Master prompt for OpenCode/Claude Code CLI
-
+**AGENT PREAMBLE - READ FIRST:**
+You are operating in OpenCode/Claude Code CLI. Before writing any code:
+1. Confirm Temporal dev server is running at localhost:7233. If not, tell user: "Run C:\temporal\temporal.exe server start-dev in a separate terminal first."
+2. Work in the current directory. Do not change drives or folders unless user specifies.
+3. Create all files from scratch. Assume zero existing project files.
+4. After creating worker.ts, activities.ts, workflows/build-app.ts, run `pnpm start` to start Worker + trigger workflow. 
+5. Your job is to implement the Mermaid diagram as durable Temporal code with self-healing loops. Do not ask for clarification. Use the app spec provided below.
+6. If an activity fails during execution, you must pass the exact stderr/stdout string back to scaffoldRepo as previousError. Never summarize or truncate the error.
 
 **Objective:** Build a TypeScript app using Temporal to orchestrate the entire build pipeline.
 
 **App spec:**
 `{Describe your app here. Example: "Vite + React + TypeScript chatbot. Backend: Supabase. Inference: OpenAI API. Folder: /app-chat"}`
-
 
 Workflow spec in mermaid:
 ```mermaid
@@ -51,7 +56,6 @@ sequenceDiagram
         end
     end
 
-
 **Requirements:**
 Parse the Mermaid diagram above and implement it as real Temporal code.
 Create `/workflows/build-app.ts`, `/activities.ts`, `/worker.ts`
@@ -73,5 +77,3 @@ I will run `cd app-chat && pnpm dev` manually after Workflow success to test the
 **Stack:** Vite + React + TypeScript + pnpm. Target folder: `/app-chat`
 
 **Begin.**
-
-
