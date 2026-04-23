@@ -18,7 +18,7 @@ App spec:
 
 Workflow spec in Mermaid:
 
-
+```mermaid
 sequenceDiagram
     autonumber
     participant WF as BuildAppWorkflow
@@ -120,6 +120,8 @@ sequenceDiagram
         end
     end
 
+
+```
 
 Requirements:
 
