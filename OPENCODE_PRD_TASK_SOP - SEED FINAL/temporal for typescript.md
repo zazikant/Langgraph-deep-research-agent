@@ -1,24 +1,23 @@
-
-**AGENT PREAMBLE - READ FIRST:**
+AGENT PREAMBLE - READ FIRST:
 You are operating in OpenCode/Claude Code CLI. Before writing any code:
-1. Confirm Temporal dev server is running at `localhost:7233`. If not, tell user: *"Run `C:\temporal\temporal.exe server start-dev` in a separate terminal first."*
-2. Work in the current directory. Do not change drives or folders unless user specifies.
-3. Create all files from scratch. Assume zero existing project files.
-4. After creating `worker.ts`, `activities.ts`, `workflows/build-app.ts`, run `pnpm start`.
-5. Do not ask for clarification. Begin immediately.
 
----
+————————————————————————————
+APP_DIR = D:\xxx\app-chat
+↑ THIS IS THE ONLY PLACE YOU SET THE PATH. Replace xxx with your actual project folder name (e.g. D:\my-chatbot\app-chat). Every activity, every cd, every cwd reference uses this variable. Never hardcode the path anywhere else.
+————————————————————————————
 
-**Objective:** Build a TypeScript app using Temporal to orchestrate the entire build pipeline. Temporal owns all durable state. The agent receives a short, compiled, targeted prompt per retry — never a raw error transcript.
+Confirm Temporal dev server is running at localhost:7233. If not, tell user: "Run temporal.exe server start-dev in a separate terminal first."
+Work in the current directory. Do not change drives or folders unless user specifies.
+Create all files from scratch. Assume zero existing project files.
+After creating worker.ts, activities.ts, workflows/build-app.ts, run pnpm start.
+Do not ask for clarification. Begin immediately.
+Objective: Build a TypeScript app using Temporal to orchestrate the entire build pipeline. Temporal owns all durable state. The agent receives a short, compiled, targeted prompt per retry — never a raw error transcript.
 
-**App spec:**
-`{Describe your app here. Example: "Vite + React + TypeScript chatbot. Backend: Supabase. Inference: OpenAI API. Folder: /app-chat"}`
+App spec:
+{Describe your app here. Example: "Vite + React + TypeScript chatbot. Backend: Supabase. Inference: OpenAI API." — the folder is always APP_DIR as defined above, no need to repeat it here}
 
----
+Workflow spec in Mermaid:
 
-**Workflow spec in Mermaid:**
-
-```mermaid
 
 sequenceDiagram
     autonumber
@@ -115,22 +114,19 @@ sequenceDiagram
                     WF->>WF: set resumeFrom="build"
                 end
             else Build OK
-                A5-->>WF: dist/ ready
+                A5-->>WF: APP_DIR\dist ready
                 WF->>WF: workflow complete, break loop
             end
         end
     end
 
-```
 
----
+Requirements:
 
-**Requirements:**
-
-**1. Workflow (`/workflows/build-app.ts`)**
+1. Workflow (/workflows/build-app.ts)
 
 Maintain this state throughout the workflow:
-```typescript
+
 interface ErrorEntry {
   attempt: number;
   stage: "scaffold" | "scaffold-patch" | "typeCheck" | "lint" | "build";
@@ -144,20 +140,29 @@ let scaffoldAttempts = 0;
 let attempt = 0;
 let resumeFrom: "initial" | "typeCheck" | "lint" | "build" = "initial";
 let errorHistory: ErrorEntry[] = [];
-```
-
 Rules:
-- `scaffoldAttempts` tracks only the initial scaffold loop. Max 2. Throws with full `errorHistory` if exceeded.
-- `attempt` tracks pipeline loop iterations. Max 3. Increments at the top of each pipeline loop iteration.
-- `resumeFrom` determines which stage the pipeline resumes from. Never resets to `"initial"` inside the pipeline loop — only advances or stays.
-- On every `scaffoldRepo` call anywhere in the workflow, first call `compileScaffoldPrompt(spec, errorHistory, attempt, resumeFrom)` and pass its output as the prompt. Never pass raw `errorHistory` directly to any activity.
-- If pipeline attempts exhausted, throw a workflow error listing every `ErrorEntry` in `errorHistory`.
 
----
+scaffoldAttempts tracks only the initial scaffold loop. Max 2. Throws with full errorHistory if exceeded.
+attempt tracks pipeline loop iterations. Max 3. Increments at the top of each pipeline loop iteration.
+resumeFrom determines which stage the pipeline resumes from. Never resets to "initial" inside the pipeline loop — only advances or stays.
+On every scaffoldRepo call anywhere in the workflow, first call compileScaffoldPrompt(spec, errorHistory, attempt, resumeFrom) and pass its output as the prompt. Never pass raw errorHistory directly to any activity.
+If pipeline attempts exhausted, throw a workflow error listing every ErrorEntry in errorHistory.
+CRITICAL — Workflow definition pattern: In the Temporal TypeScript SDK, workflows are exported async functions, NOT classes or defineWorkflow calls (that API does not exist). Use:
 
-**2. `compileScaffoldPrompt` — pure workflow-side function (not an activity)**
+typescript
 
-```typescript
+export async function buildAppWorkflow(spec: string): Promise<string> { ... }
+The worker references it by string name: client.start("buildAppWorkflow", { ... }).
+
+CRITICAL — Throwing workflow errors: Use ApplicationFailure.create({ message, type }) from @temporalio/workflow, NOT WorkflowError (which does not exist as a throwable class in the SDK).
+
+typescript
+
+import { ApplicationFailure } from "@temporalio/workflow";
+throw ApplicationFailure.create({ message: "Scaffold failed", type: "ScaffoldFailed" });
+
+2. compileScaffoldPrompt — pure workflow-side function (not an activity)
+
 function compileScaffoldPrompt(
   spec: string,
   errorHistory: ErrorEntry[],
@@ -195,7 +200,7 @@ Current error to fix (fix this and only this):
   Error: ${latest.error}
 
 What was already tried — do NOT repeat these:
-${previousFixes || "  Nothing tried yet."}
+ ${previousFixes || "  Nothing tried yet."}
 
 Rules:
 - Fix only the file(s) causing the current error above.
@@ -204,13 +209,9 @@ Rules:
 - Return the exact list of files you changed and a one-line summary of what you changed in each.
   `.trim();
 }
-```
 
----
+3. Activities (/activities.ts)
 
-**3. Activities (`/activities.ts`)**
-
-```typescript
 scaffoldRepo(compiledPrompt: string): Promise<{
   filesChanged: string[];
   changeSummary: string[];
@@ -220,54 +221,111 @@ scaffoldRepo(compiledPrompt: string): Promise<{
 // scheduleToCloseTimeout: 3 minutes
 
 installDeps(): Promise<void>
-// Runs: pnpm install inside /app-chat
-// scheduleToCloseTimeout: 3 minutes
+// Runs: pnpm install inside APP_DIR
+// scheduleToCloseTimeout: 5 minutes
 
 typeCheck(): Promise<{ ok: boolean; error?: string }>
-// Runs: tsc --noEmit inside /app-chat
+// Runs: tsc --noEmit inside APP_DIR
 // Captures full stderr. Never truncate.
-// scheduleToCloseTimeout: 2 minutes
+// scheduleToCloseTimeout: 3 minutes
 
 lint(): Promise<{ ok: boolean; error?: string }>
-// Runs: eslint . inside /app-chat
+// Runs: eslint . inside APP_DIR
 // Captures full stderr. Never truncate.
-// scheduleToCloseTimeout: 2 minutes
+// scheduleToCloseTimeout: 3 minutes
 
 build(): Promise<{ ok: boolean; error?: string; distPath?: string }>
-// Runs: vite build inside /app-chat
+// Runs: vite build inside APP_DIR
 // Captures full stderr. Never truncate.
-// scheduleToCloseTimeout: 5 minutes
-```
+// scheduleToCloseTimeout: 10 minutes
+All activities must capture raw stdout + stderr combined. No summarizing. No truncating.
 
-All activities must capture raw `stdout + stderr` combined. No summarizing. No truncating.
+⚠️ LEARNED — Activity timeouts: The original 2-3 minute timeouts are too aggressive. pnpm install can take 30-60s on first run, and vite build with cold caches can exceed 3 minutes. Use the revised timeouts above. In proxyActivities, set startToCloseTimeout and scheduleToCloseTimeout to 10 minutes for all activities — the SDK minimum is what matters, not the per-activity estimate.
 
----
+⚠️ LEARNED — APP_DIR path: Always use the APP_DIR value defined at the very top of this prompt. Set it once there (e.g. D:\xxx\app-chat), and reference it everywhere in activities.ts via a constant at the top of the file:
 
-**4. Worker (`/worker.ts`)**
+const APP_DIR = "D:\\xxx\\app-chat"; // match exactly what's set in the preamble
+In child_process.exec calls, pass cwd: APP_DIR.
 
-- Register all activities and `BuildAppWorkflow`.
-- After worker starts, automatically trigger `BuildAppWorkflow` with the app spec as input.
-- On each retry, log to console:
-```
+⚠️ LEARNED — pnpm install and esbuild: pnpm 10+ blocks build scripts by default (including esbuild's postinstall). Without the esbuild binary, vite build will fail with a cryptic error. You MUST do one of:
+
+Add to the scaffolded package.json:
+json
+
+"pnpm": { "onlyBuiltDependencies": ["esbuild"] }
+AND add the platform-specific esbuild binary to devDependencies:
+Windows: "@esbuild/win32-x64": "^0.25.0"
+Alternatively, in the installDeps activity, run:
+
+text
+
+pnpm config set onlyBuiltDependencies "esbuild" --location project && pnpm install
+⚠️ LEARNED — eslint.config.js must reference only packages that exist: The initial scaffold must include ALL ESLint plugin packages in package.json that the eslint.config.js imports. The standard Vite React template imports eslint-plugin-react-hooks, eslint-plugin-react-refresh, and globals. If any are missing, ESLint will fail with a module-not-found error. Include these in devDependencies from the start:
+
+json
+
+"eslint-plugin-react-hooks": "^5.0.0",
+"eslint-plugin-react-refresh": "^0.4.14",
+"globals": "^15.12.0"
+⚠️ LEARNED — Vite 6+ build script: Use "build": "tsc -b && vite build" (not tsc && vite build). The -b flag is the project-references-aware build mode in TypeScript 5.6+.
+
+4. Worker (/worker.ts)
+
+Register all activities and buildAppWorkflow.
+After worker starts, automatically trigger buildAppWorkflow with the app spec as input.
+On each retry, log to console:
+
 [Attempt N | stage] Error: <first 300 chars of error>
 [Attempt N | stage] Compiled prompt: <full compiledPrompt>
 [Attempt N | stage] Files changed: <filesChanged[]>
 [Attempt N | stage] Change summary: <changeSummary[]>
 [Attempt N | stage] resumeFrom: <resumeFrom>
-```
+
 This gives full visibility without bloating agent context.
 
----
+⚠️ LEARNED — Worker connection retry: The Temporal dev server takes several seconds to become ready. The native Rust core-bridge inside Worker.create() does NOT retry — if the server isn't ready, it throws TransportError immediately. You MUST add a pre-flight health check using the pure-JS @temporalio/client connection before calling Worker.create():
 
-**5. ESLint — scaffold on attempt 0:**
-- `scaffoldRepo` must emit `eslint.config.js` (flat config) on the initial scaffold.
-- A missing config error on attempt 1 is acceptable — `compileScaffoldPrompt` will produce a targeted fix. It will not waste the pipeline attempt budget.
+import { Connection } from "@temporalio/client";
 
----
+async function waitForServer(maxRetries = 10, delayMs = 3000): Promise<void> {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      const conn = await Connection.connect({ address: "localhost:7233" });
+      await conn.workflowService.listNamespaces({});
+      conn.close();
+      console.log("Connected to Temporal server!");
+      return;
+    } catch {
+      console.log(`Waiting for server... (attempt ${i + 1}/${maxRetries})`);
+      await new Promise(r => setTimeout(r, delayMs));
+    }
+  }
+  throw new Error("Could not connect to Temporal server");
+}
+Call await waitForServer() BEFORE Worker.create().
 
-**6. `resumeFrom` state machine — implement exactly as follows:**
+⚠️ LEARNED — Workflow name in client.start: When starting a workflow from the client, use the string name of the function (not the function reference):
 
-```typescript
+const handle = await client.start("buildAppWorkflow", { ... });
+This matches the exported function name from the workflow module.
+
+⚠️ LEARNED — @temporalio/core-bridge must be explicitly installed: The @temporalio/worker package lists @temporalio/core-bridge as a dependency, but pnpm may not hoist it or install its native binary correctly. Always add it explicitly:
+
+pnpm add @temporalio/core-bridge
+Verify the native binary exists at: node_modules/@temporalio/core-bridge/releases/{platform}/index.node
+
+Windows: x86_64-pc-windows-msvc
+⚠️ LEARNED — @swc/core platform binary: Similarly, @swc/core needs its platform-specific binary. Install it explicitly:
+
+Windows: pnpm add @swc/core-win32-x64-msvc
+5. ESLint — scaffold on attempt 0:
+
+scaffoldRepo must emit eslint.config.js (flat config) on the initial scaffold.
+The eslint.config.js must only import packages that are listed in package.json devDependencies. A missing plugin on attempt 0 will cause eslint to fail, but compileScaffoldPrompt will produce a targeted fix — it will not waste the pipeline attempt budget.
+⚠️ LEARNED — Best practice: Include all ESLint plugin dependencies in the initial scaffold's package.json to avoid this failure entirely. The retry loop is a safety net, not the primary path.
+
+6. resumeFrom state machine — implement exactly as follows:
+
 // At top of pipeline loop:
 attempt++;
 
@@ -288,20 +346,53 @@ resumeFrom = "build"; // stays
 
 // After build succeeds:
 // break loop, return distPath
-```
+7. General rules:
 
----
+Do NOT start a dev server inside Temporal.
+Workflow ends when vite build succeeds — return APP_DIR\dist.
+All activity timeouts set explicitly. No implicit defaults. Use 10 minutes for scheduleToCloseTimeout and startToCloseTimeout on all proxyActivities.
+compileScaffoldPrompt is the only place that constructs agent prompts. Workflow code never passes raw errorHistory to any activity.
+Every scaffoldRepo call in the pipeline — whether triggered by typeCheck, lint, or build failure — must have its own alt ScaffoldRepo Error handler as shown in the diagram.
+8. Setup & dependency installation (Windows):
 
-**7. General rules:**
-- Do NOT start a dev server inside Temporal.
-- Workflow ends when `vite build` succeeds — return `/app-chat/dist`.
-- All activity timeouts set explicitly. No implicit defaults.
-- `compileScaffoldPrompt` is the only place that constructs agent prompts. Workflow code never passes raw `errorHistory` to any activity.
-- Every `scaffoldRepo` call in the pipeline — whether triggered by typeCheck, lint, or build failure — must have its own `alt ScaffoldRepo Error` handler as shown in the diagram.
+⚠️ LEARNED — Full dependency list: Running pnpm add @temporalio/workflow @temporalio/activity @temporalio/worker @temporalio/client is NOT sufficient. You MUST also install the native bridge packages explicitly:
 
----
+# Core Temporal SDK packages
+pnpm add @temporalio/workflow @temporalio/activity @temporalio/worker @temporalio/client
 
-**Stack:** Vite + React + TypeScript + pnpm. Target folder: `/app-chat`
+# Native bridge (required — worker will crash without it)
+pnpm add @temporalio/core-bridge
 
-**Begin.**
+# SWC compiler platform binary (required for worker workflow bundling)
+pnpm add @swc/core-win32-x64-msvc
 
+# TypeScript and runner
+pnpm add -D typescript tsx @types/node
+⚠️ LEARNED — Temporal CLI on Windows: Download from https://github.com/temporalio/cli/releases — grab temporal_cli_X.X.X_windows_amd64.zip, extract temporal.exe, and add it to your PATH. Start the dev server:
+
+temporal.exe server start-dev
+Use --headless flag to skip the UI if not needed (saves ~40MB RAM):
+
+temporal.exe server start-dev --headless
+⚠️ LEARNED — Server startup timing: The Temporal dev server takes 5-10 seconds to become ready after printing "Temporal Server: localhost:7233". The message is printed before the gRPC endpoint is actually listening. Always wait for a successful connection before starting the worker, or implement the waitForServer() retry loop described in section 4.
+
+9. Failure learnings summary:
+
+| # | Failure | Root Cause | Fix |
+|---|---------|-----------|-----|
+| 1 | `TransportError: Connection refused` when worker starts | Server not ready yet, or server crashed | Add `waitForServer()` pre-flight check using `@temporalio/client` `Connection.connect()` before `Worker.create()` |
+| 2 | `Worker.create()` throws `TransportError` even after server is confirmed running | Missing `@temporalio/core-bridge` native binary | `pnpm add @temporalio/core-bridge` explicitly — check `releases/` folder has your platform's `index.node` |
+| 3 | `EACCES: permission denied, mkdir 'D:\app-chat'` | Path not writable or doesn't exist | Use `D:\xxx\app-chat` where xxx is your actual project folder — set APP_DIR at top of activities.ts |
+| 4 | `vite build` fails: "esbuild not found" | pnpm 10+ blocks esbuild's postinstall build script | Add `"pnpm": { "onlyBuiltDependencies": ["esbuild"] }` to package.json AND install `@esbuild/win32-x64` (or linux-x64) |
+| 5 | `eslint .` fails: "Cannot find package eslint-plugin-react-hooks" | Initial scaffold's `eslint.config.js` imports plugins not in `package.json` | Include `eslint-plugin-react-hooks`, `eslint-plugin-react-refresh`, `globals` in devDependencies from the start |
+| 6 | `defineWorkflow is not a function` or `WorkflowError is not defined` | These APIs don't exist in `@temporalio/workflow` | Use `export async function buildAppWorkflow(...)` and `ApplicationFailure.create({ message, type })` |
+| 7 | `@swc/core` binding error when worker bundles workflows | Missing platform-specific SWC binary | `pnpm add @swc/core-win32-x64-msvc` (Windows) or `@swc/core-linux-x64-gnu` (Linux) |
+| 8 | Workflow function not found by worker | Worker uses file exports; client must use string name | `client.start("buildAppWorkflow", { ... })` — match the exported function name exactly |
+| 9 | Activity timeouts cause workflow failure on slow machines | 2-3 min timeouts too tight for install/build | Use 10-minute timeouts on all `proxyActivities` |
+| 10 | `pnpm install` silently skips esbuild native binary | pnpm `onlyBuiltDependencies` policy blocks build scripts | Set `onlyBuiltDependencies: ["esbuild"]` in package.json OR install platform-specific `@esbuild/*` package directly |
+
+
+
+Stack: Vite + React + TypeScript + pnpm. Target folder: APP_DIR (set once at top of preamble — default example: D:\xxx\app-chat)
+
+Begin.
