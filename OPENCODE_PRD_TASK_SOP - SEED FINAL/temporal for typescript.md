@@ -114,7 +114,7 @@ sequenceDiagram
                     WF->>WF: set resumeFrom="build"
                 end
             else Build OK
-                A5-->>WF: APP_DIR\dist ready
+                A5-->>WF: APP_DIR/dist ready
                 WF->>WF: workflow complete, break loop
             end
         end
